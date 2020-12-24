@@ -1,0 +1,158 @@
+<style>
+    .cell{
+        width: 100px;
+        height: 100px;
+        background-color: yellow;
+        display: inline-block;/*水平一行*/
+        border:solid 1px white;
+        vertical-align: middle;/*纵向对齐*/
+
+        line-height: 100px;
+        font-size: 50px;
+        text-align: center;
+
+    }
+</style>
+
+
+<div id = "board"></div>
+<body>
+    <script>
+        let pattern =[
+            [0,2,0],
+            [0,1,0],
+            [0,0,0]
+        ]   
+        color = 1;
+        function show(){
+            let board = document.getElementById("board");
+            board.innerHTML = "";
+            for(let i = 0;i <pattern.length;i++){
+                for(let j = 0; j<pattern[0].length;j++){
+                        let cell = document.createElement("div");
+                        cell.classList.add("cell");
+                        cell.innerText = pattern[i][j]==2?"x":
+                        pattern[i][j]==1?"O":"";
+                        cell.addEventListener("click",() => move(i,j));
+                        board.appendChild(cell);
+                }
+                    board.appendChild(document.createElement("br"))
+            }
+
+        }
+
+        function move(x,y){
+            pattern[x][y]=color;
+            if(check(pattern,color)){
+                alert(color==2?"X is winner":"O is winner");
+            }
+            color = 3-color;
+            console.log(bestChoice(pattern,color));
+            show();
+            // if(willWin(pattern,color)){
+            //     console.log(color==2?"X is winner":"O is winner");
+            // }
+        }
+        function check(pattern,color){
+            for(let i = 0;i<3;i++){
+                let win = true;
+                for(let j = 0;j<3;j++){
+                    if(pattern[i][j]!=color){
+                        win = false;
+                    }
+                }
+                if(win)
+                return true;
+            }
+            for(let i = 0;i<3;i++){
+                let win = true;
+                for(let j = 0;j<3;j++){
+                    if(pattern[j][i]!=color){
+                        win = false;
+                    }
+                }
+                if(win)
+                return true;
+            }
+            {
+                win = true;
+                for(let j = 0;j<3;j++){
+                    if(pattern[j][j]!=color){
+                        win = false;
+                    }
+                 }
+                if(win)
+                return true;
+            }
+            {
+                win = true;
+                for(let j = 0;j<3;j++){
+                    if(pattern[j][2-j]!=color){
+                        win = false;
+                    }
+                 }
+                if(win)
+                return true;
+            }
+            return false;
+
+        }
+        function clone(pattern){
+            return JSON.parse(JSON.stringify(pattern));
+            // return Object.create(pattern);//一维数组的方法
+        }
+        function willWin(pattern,color){
+            for(let i = 0;i<3;i++){
+                for(let j = 0;j<3;j++){
+                    if(pattern[i][j])
+                    continue;
+                    let  tmp = clone(pattern);
+                    tmp[i][j] = color;
+                    if(check(tmp,color)){
+                        return [j,i];//return一个不为null的点就行吧
+                    }
+                }   
+            }
+            return null;
+        }
+        //其实就是作弊器,是局式分析器，给定一个初始的残局判断局势走向
+        function bestChoice(pattern,color){
+            let p;
+            //特殊情况胜利情况为中止条件，此种情况代表差一步能胜
+            if( p = willWin(pattern,color)){
+                return{
+                    point:p,
+                    result:1
+                }
+            }
+                let result = -2;
+                let point = null;
+                outer:for(let i = 0; i < 3;i++){
+                    for(let j = 0;j<3 ;j++){
+                        if(pattern[i][j])
+                            continue;
+                        let tmp = clone(pattern);
+                        tmp[i][j] = color;//遍历填空
+                        let r = bestChoice(tmp,3-color).result;//最终递归到一方可以取胜的局面
+                        //如果有一方在未和棋的情况下取得胜利，-r代表另一方情况
+                        if(-r > result){
+                            result = -r;
+                            point = [j,i];
+                        }
+                        if(result == 1)
+                            break outer;
+                    }
+                }
+                //和棋代表双方都为达到差一步能胜利的情况，棋盘已经填满毫无疑问此时point为null
+                return {
+                    point:point,
+                    result:point ? result : 0
+                }
+            }
+        
+       
+        show(pattern);
+     
+
+    </script>
+

@@ -1,0 +1,54 @@
+<style>
+    .cell{
+        width: 100px;
+        height: 100px;
+        background-color: yellow;
+        display: inline-block;/*水平一行*/
+        border:solid 1px white;
+        vertical-align: middle;/*纵向对齐*/
+
+        line-height: 100px;
+        font-size: 50px;
+        text-align: center;
+
+    }
+</style>
+
+
+<div id = "board"></div>
+<body>
+    <script>
+        let pattern =[
+            [0,2,0],
+            [0,1,1],
+            [0,0,0]
+        ]   
+        color = 2;
+        function show(){
+            let board = document.getElementById("board");
+            board.innerHTML = "";
+            for(let i = 0;i <pattern.length;i++){
+                for(let j = 0; j<pattern[0].length;j++){
+                        let cell = document.createElement("div");
+                        cell.classList.add("cell");
+                        cell.innerText = pattern[i][j]==2?"x":
+                        pattern[i][j]==1?"O":"";
+                        cell.addEventListener("click",() => move(i,j));
+                        board.appendChild(cell);
+                }
+                    board.appendChild(document.createElement("br"))
+            }
+
+        }
+
+        show(pattern);
+        function move(x,y){
+            pattern[x][y]=color;
+            color = 3-color;
+            show();
+        }
+
+
+
+    </script>
+
